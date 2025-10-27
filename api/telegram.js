@@ -13,8 +13,8 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Telegram API Credentials - YEH TERI OWN IDS DALNA
-const API_ID = parseInt(process.env.API_ID) || 123456; // Apna API ID dal
-const API_HASH = process.env.API_HASH || 'your_api_hash_here'; // Apna API Hash dal
+const API_ID = parseInt(process.env.API_ID) || 24708260; // Apna API ID dal
+const API_HASH = process.env.API_HASH || '4ddab5a73a54ab88049a8a8631d9f1af'; // Apna API Hash dal
 
 // David Bot ka username
 const DAVID_BOT_USERNAME = 'David_user_name_to_num_bot';
